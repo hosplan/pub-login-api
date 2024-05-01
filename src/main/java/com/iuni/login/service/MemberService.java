@@ -221,10 +221,7 @@ public class MemberService implements UserDetailsService {
             member.setIsSocial(true);
             member.setCredential(data.getCredential());
             Member saveMember = memberRepository.save(member);
-            System.out.println("saveMember = " + saveMember.getId());
-            System.out.println("saveMember = " + saveMember);
-            System.out.println("saveMember = " + saveMember);
-            System.out.println("saveMember = " + saveMember);
+
             initCreateIuniCat(saveMember);
             saveAuth("USER", saveMember);
             saveAuth("TEMPUSER", saveMember);
@@ -326,6 +323,8 @@ public class MemberService implements UserDetailsService {
             throw e;
         }
     }
+
+
     //이메일이 있는지 검사
     public Boolean checkEmail(String email){
         try{
@@ -334,6 +333,23 @@ public class MemberService implements UserDetailsService {
         }
         catch(Exception e){
             throw e;
+        }
+    }
+
+    public Boolean checkPw(String pw, Long id){
+        try{
+            Optional<Member> optionalMember = memberRepository.findById(id);
+            if(optionalMember.isEmpty()){
+                return false;
+            }
+            Member member = optionalMember.get();
+            Encrypt encrypt = new Encrypt();
+            String hashPw = encrypt.getEncrypt(pw, member.getSalt());
+            Optional<Member> pwCheck = memberRepository.findByEmailAndPassword(member.getEmail(), hashPw);
+            return pwCheck.isPresent();
+        }
+        catch(Exception e){
+            return false;
         }
     }
 

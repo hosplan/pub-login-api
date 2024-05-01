@@ -1,6 +1,7 @@
 package com.iuni.login.controller;
 
 import com.iuni.login.domain.*;
+import com.iuni.login.helper.jwt.JWT;
 import com.iuni.login.helper.redis.RedisService;
 import com.iuni.login.service.AmazonSMTPService;
 import com.iuni.login.service.MemberService;
@@ -22,11 +23,18 @@ public class MemberController {
     private final SignInService signInService;
     private final RedisService redisService;
     private final AmazonSMTPService amazonSMTPService;
+    private final JWT jwt;
 
     @GetMapping()
     public ResponseEntity<Boolean> checkEmail(@RequestParam("email") String email){
         return new ResponseEntity<>(memberService.checkEmail(email), HttpStatus.OK);
     }
+
+    @GetMapping("/checkPw")
+    public ResponseEntity<Boolean> checkPw(@RequestBody SignIn signIn, @RequestHeader Map<String, String> headers){
+        return new ResponseEntity<>( memberService.checkPw(signIn.getPassword(), jwt.getId(headers.get("authorization"))), HttpStatus.OK );
+    }
+
 
     @PostMapping()
     public HashMap<String, Boolean> signUp(@RequestBody Member data){
@@ -45,7 +53,6 @@ public class MemberController {
     @PostMapping("/checkcertification")
     public HashMap<String, String> checkCertification(@RequestBody CertificateCode data){
         HashMap<String, String> result = new HashMap<>();
-        result.put("result", memberService.checkCertification(data));
         result.put("result", memberService.checkCertification(data));
         return result;
     }

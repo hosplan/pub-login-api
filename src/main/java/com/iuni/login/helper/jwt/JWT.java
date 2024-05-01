@@ -12,6 +12,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,9 +25,14 @@ import java.util.List;
 
 @Component
 public class JWT {
-    private static final String SECRET_KEY = "dkdldbslqjtm20231230wjdtlrdhvmsdmfgidgotjekffurksek";
+    @Value("${jwt.key}")
+    private String SECRET_KEY;
 
+    public String getSECRET_KEY() {
+        return SECRET_KEY;
+    }
 
+    //@Value("${jwt.key}") static String SECRET_KEY;
     private final long accessTokenExp = 1000L * 60 * 60;
     //private final long accessTokenExp = 6000;
     private final long refreshExp = 2592000000L;
@@ -77,13 +83,13 @@ public class JWT {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(getTokenExpiration(accessTokenExp))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(SignatureAlgorithm.HS256, getSECRET_KEY())
                 .compact();
     }
 
     public Long getId(String token){
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(getSECRET_KEY())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -91,19 +97,20 @@ public class JWT {
     }
 
     public String getRefreshToken(String email){
+        System.out.println("SECRET_KEY = " + getSECRET_KEY());
         Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(getTokenExpiration(refreshExp))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(SignatureAlgorithm.HS256, getSECRET_KEY())
                 .compact();
     }
 
     public String getAccount(String token){
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(getSECRET_KEY())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -114,7 +121,7 @@ public class JWT {
 
     public Claims getClaim(String token){
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(getSECRET_KEY())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
