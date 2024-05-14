@@ -31,6 +31,7 @@ public class SignInService {
 
         SignIn result = new SignIn();
         result.setNickName(member.getNickName());
+        result.setIsSocial(member.getIsSocial());
         result.setName(member.getName());
         result.setEmail(member.getEmail());
         result.setCertification(member.getCertification());
@@ -75,6 +76,7 @@ public class SignInService {
     //구글 로그인
     public IuniToken signInGoogleOAuth(SignIn userInfo){
         Optional<Member> optOauthMember = memberRepository.findByEmailAndType(userInfo.getEmail(), "google");
+
         if(optOauthMember.isEmpty()){
             IuniToken result = new IuniToken();
             result.setResult("NotCollectOAuth");

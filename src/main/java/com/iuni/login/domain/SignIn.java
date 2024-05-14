@@ -1,12 +1,12 @@
 package com.iuni.login.domain;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class SignIn {
     private Long id;
     private String email;
@@ -17,6 +17,7 @@ public class SignIn {
     private String accessToken;
     private String refreshToken;
     private String jwt;
+    private Boolean isSocial;
     private Boolean certification;
     private String code;
     private List<Authority> authList;

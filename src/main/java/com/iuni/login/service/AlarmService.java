@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final MemberRepository memberRepository;
-
     private final JWT jwt;
 
     private ArrayList<ResAlarm> makeResAlarms(List<Alarm> dataList){

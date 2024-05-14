@@ -2,7 +2,6 @@ package com.iuni.login.helper.jwt;
 
 import com.iuni.login.domain.Authority;
 import com.iuni.login.domain.IuniToken;
-import com.iuni.login.domain.SignIn;
 import com.iuni.login.helper.redis.RedisService;
 import com.iuni.login.service.AuthorityService;
 import com.iuni.login.service.MemberService;
@@ -12,7 +11,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,37 +19,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Component
-@Getter
 public class JWT {
-    @Value("${jwt.key}")
-    private String SECRET_KEY;
-
-
-
-    //@Value("${jwt.key}") static String SECRET_KEY;
+    private static final String SECRET_KEY = "dkdldbslqjtmsms20240514dpakanflehlqslekgkgkgkgkgksadasdpasoiqwpoiepoiasfdssaf";
     private final long accessTokenExp = 1000L * 60 * 60;
     //private final long accessTokenExp = 6000;
     private final long refreshExp = 2592000000L;
     private final MemberService memberService;
     private final RedisService redisService;
     private final AuthorityService authorityService;
-    public JWT(MemberService memberService,
-               AuthorityService authorityService,
-               RedisService redisService) {
-        this.memberService = memberService;
-        this.authorityService = authorityService;
-        this.redisService = redisService;
-    }
 
     public IuniToken generate(String email, List<Authority> roles, Long id, String nickName){
+
         String refreshToken = getRefreshToken(email);
         redisService.setValues(email, id.toString(), Duration.ofMillis(getTokenExpiration(refreshExp).getTime()));
-
         IuniToken result= new IuniToken();
         result.setRefreshToken(refreshToken);
         result.setAccessToken(getAccessToken(email, roles, id, nickName));
@@ -79,17 +65,18 @@ public class JWT {
         claims.put("id", id);
         claims.put("nickName", nickName);
         Date now = new Date();
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(getTokenExpiration(accessTokenExp))
-                .signWith(SignatureAlgorithm.HS256, getSECRET_KEY())
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
 
     public Long getId(String token){
         return Jwts.parserBuilder()
-                .setSigningKey(getSECRET_KEY())
+                .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -97,20 +84,20 @@ public class JWT {
     }
 
     public String getRefreshToken(String email){
-        System.out.println("SECRET_KEY = " + getSECRET_KEY());
+        System.out.println("SECRET_KEY = " + SECRET_KEY);
         Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(getTokenExpiration(refreshExp))
-                .signWith(SignatureAlgorithm.HS256, getSECRET_KEY())
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
 
     public String getAccount(String token){
         return Jwts.parserBuilder()
-                .setSigningKey(getSECRET_KEY())
+                .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -121,7 +108,7 @@ public class JWT {
 
     public Claims getClaim(String token){
         return Jwts.parserBuilder()
-                .setSigningKey(getSECRET_KEY())
+                .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -150,7 +137,7 @@ public class JWT {
 //            }
 
             Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(getSECRET_KEY())
+                    .setSigningKey(SECRET_KEY)
                     .build()
                     .parseClaimsJws(token);
             return !claims.getBody().getExpiration().before(new Date());
@@ -163,7 +150,7 @@ public class JWT {
     public boolean validateRefreshToken(String refreshToken){
         try{
             Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(getSECRET_KEY())
+                    .setSigningKey(SECRET_KEY)
                     .build()
                     .parseClaimsJws(refreshToken);
             return !claims.getBody().getExpiration().before(new Date());
