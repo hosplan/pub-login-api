@@ -12,6 +12,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,13 +25,12 @@ import java.util.Date;
 import java.util.List;
 
 @Component
+@Getter
 public class JWT {
     @Value("${jwt.key}")
     private String SECRET_KEY;
 
-    public String getSECRET_KEY() {
-        return SECRET_KEY;
-    }
+
 
     //@Value("${jwt.key}") static String SECRET_KEY;
     private final long accessTokenExp = 1000L * 60 * 60;
@@ -150,7 +150,7 @@ public class JWT {
 //            }
 
             Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(SECRET_KEY)
+                    .setSigningKey(getSECRET_KEY())
                     .build()
                     .parseClaimsJws(token);
             return !claims.getBody().getExpiration().before(new Date());
@@ -163,7 +163,7 @@ public class JWT {
     public boolean validateRefreshToken(String refreshToken){
         try{
             Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(SECRET_KEY)
+                    .setSigningKey(getSECRET_KEY())
                     .build()
                     .parseClaimsJws(refreshToken);
             return !claims.getBody().getExpiration().before(new Date());
