@@ -30,7 +30,7 @@ public class MemberController {
         return new ResponseEntity<>(memberService.checkEmail(email), HttpStatus.OK);
     }
 
-    @GetMapping("/checkPw")
+    @PostMapping("/checkPw")
     public ResponseEntity<Boolean> checkPw(@RequestBody SignIn signIn, @RequestHeader Map<String, String> headers){
         return new ResponseEntity<>( memberService.checkPw(signIn.getPassword(), jwt.getId(headers.get("authorization"))), HttpStatus.OK );
     }
