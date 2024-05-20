@@ -353,6 +353,25 @@ public class MemberService implements UserDetailsService {
         }
     }
 
+    public Boolean unscribe(Long memberId){
+        try{
+            Optional<Member> optMember = memberRepository.findById(memberId);
+            if(optMember.isEmpty()){
+                return false;
+            }
+            Member member = optMember.get();
+
+            memberIuniMapRepository.deleteAllByMember(memberId);
+            alarmRepository.deleteAllByToMemberOrFromMember(memberId);
+            authorityRepository.deleteAllByMember(memberId);
+            memberRepository.delete(member);
+            return true;
+        }
+        catch(Exception e){
+            System.out.println("e = " + e);
+            return false;
+        }
+    }
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
         Member member = this.memberRepository.findByEmail(email).orElseThrow(

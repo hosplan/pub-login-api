@@ -123,7 +123,12 @@ public class MemberController {
         result.put("result", signInService.updateJWT(memberService.updateMemberRole(data)));
         return result;
     }
+    //탈퇴
+    @PatchMapping("/unscribe")
+    public ResponseEntity<Boolean> unscribe( @RequestHeader Map<String, String> headers){
+        return new ResponseEntity<>( memberService.unscribe(jwt.getId(headers.get("authorization"))), HttpStatus.OK );
 
+    }
     @PatchMapping()
     public Boolean update(@RequestBody Member member){
         return this.memberService.updateBasicInfo(member);
